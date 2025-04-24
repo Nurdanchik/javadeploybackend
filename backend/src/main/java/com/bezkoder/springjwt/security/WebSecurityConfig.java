@@ -21,6 +21,9 @@ import com.bezkoder.springjwt.security.jwt.AuthEntryPointJwt;
 import com.bezkoder.springjwt.security.jwt.AuthTokenFilter;
 import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Configuration
 @EnableMethodSecurity
 public class WebSecurityConfig {
@@ -59,13 +62,13 @@ public class WebSecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.addAllowedOriginPattern("*");
-    configuration.addAllowedMethod("*");
-    configuration.addAllowedHeader("*");
     configuration.setAllowCredentials(true);
+    configuration.setAllowedOriginPatterns(List.of("*")); // ✅ Разрешить все origin'ы
+    configuration.setAllowedHeaders(List.of("*"));
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration); // применяется ко всем путям
+    source.registerCorsConfiguration("/**", configuration); // Применить ко всем путям
     return source;
   }
 
@@ -78,15 +81,14 @@ public class WebSecurityConfig {
             .csrf(csrf -> csrf.disable())
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth ->
-                    auth
-                            .requestMatchers("/api/auth/**").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/api/projects/**").authenticated()
-                            .requestMatchers(HttpMethod.POST, "/api/projects/*/submit").hasRole("USER")
-                            .requestMatchers(HttpMethod.POST, "/api/projects/*/take").hasRole("USER") // ✅ доступен USER
-                            .requestMatchers(HttpMethod.POST, "/api/projects/**").hasRole("COMPANY") // ✅ доступен COMPANY
-                            .requestMatchers("/api/admin/users/**").hasRole("ADMIN")
-                            .anyRequest().permitAll()
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/projects/**").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/projects/*/submit").hasRole("USER")
+                    .requestMatchers(HttpMethod.POST, "/api/projects/*/take").hasRole("USER")
+                    .requestMatchers(HttpMethod.POST, "/api/projects/**").hasRole("COMPANY")
+                    .requestMatchers("/api/admin/users/**").hasRole("ADMIN")
+                    .anyRequest().permitAll()
             );
 
     http.authenticationProvider(authenticationProvider());
