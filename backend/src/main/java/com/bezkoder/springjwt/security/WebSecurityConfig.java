@@ -58,24 +58,21 @@ public class WebSecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
-  // ✅ CORS конфигурация (без allowCredentials=true + "*" — иначе краш)
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(List.of("*")); // Не ставим allowCredentials=true
-    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    configuration.setAllowedHeaders(List.of("*"));
-    configuration.setMaxAge(3600L);
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOrigins(List.of("http://localhost:5173")); // ✅ Укажи только нужный origin
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    config.setAllowedHeaders(List.of("*"));
+    config.setAllowCredentials(true); // ✅ Разрешаем credentials
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
+    source.registerCorsConfiguration("/**", config);
     return source;
   }
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    System.out.println("✅ WebSecurityConfig is being applied!");
-
     http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
