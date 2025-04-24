@@ -33,13 +33,8 @@ public class TestController {
     return "Admin Board.";
   }
 
-  @RestController
-  @RequestMapping("/api/test")
-  public class TestController {
-
-    @GetMapping("/ping")
-    public String ping() {
-      return "pong";
-    }
+  @GetMapping("/ping")
+  public String ping() {
+    return "pong";
   }
 }
