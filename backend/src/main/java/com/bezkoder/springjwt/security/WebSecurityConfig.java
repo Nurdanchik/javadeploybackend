@@ -21,7 +21,6 @@ import com.bezkoder.springjwt.security.jwt.AuthEntryPointJwt;
 import com.bezkoder.springjwt.security.jwt.AuthTokenFilter;
 import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -59,16 +58,17 @@ public class WebSecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
+  // ✅ CORS конфигурация (без allowCredentials=true + "*" — иначе краш)
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowCredentials(true);
-    configuration.setAllowedOriginPatterns(List.of("*")); // ✅ Разрешить все origin'ы
+    configuration.setAllowedOrigins(List.of("*")); // Не ставим allowCredentials=true
+    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(List.of("*"));
-    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    configuration.setMaxAge(3600L);
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration); // Применить ко всем путям
+    source.registerCorsConfiguration("/**", configuration);
     return source;
   }
 
