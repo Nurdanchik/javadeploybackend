@@ -82,20 +82,20 @@ public class AuthController {
               .body(new MessageResponse("Error: Email is already in use!"));
     }
 
-    // Создание нового пользователя
     User user = new User(signUpRequest.getUsername(),
             signUpRequest.getEmail(),
             encoder.encode(signUpRequest.getPassword()));
 
-    // Назначаем только роль USER, без возможности указать другую
-    Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-            .orElseThrow(() -> new RuntimeException("Error: Role USER not found."));
     Set<Role> roles = new HashSet<>();
+
+    // Назначаем только USER, игнорируем другие
+    Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+            .orElseThrow(() -> new RuntimeException("Error: ROLE_USER not found."));
     roles.add(userRole);
 
     user.setRoles(roles);
     userRepository.save(user);
 
-    return ResponseEntity.ok(new MessageResponse("User registered successfully with ROLE_USER."));
+    return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
   }
 }
